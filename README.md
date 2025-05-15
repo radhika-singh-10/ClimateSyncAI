@@ -1,4 +1,4 @@
-# CSE-587B-Data-Intensive-Computing
+
 
 
 Uncompress the temperature_prediction folder under src/phase3 folder, which has our user interface code. 
