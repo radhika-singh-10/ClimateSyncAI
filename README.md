@@ -54,6 +54,48 @@ To deactivate the virtual environment
 deactivate
 ```
 
+### Note - The application can be deployed on AWS. Please follow the below steps - 
+
+- Put the 13 models in S3
+```
+BUCKET=climatesyncai-artifacts           
+aws s3 mb s3://$BUCKET || true
+aws s3 sync ./sarimax_models s3://$BUCKET/sarimax_models/
+```
+
+- Give the EC2 instances S3 read access: The policy (aws-elasticbeanstalk-ec2-role) is attached to a read-only S3 policy to the EB instance profile
+```
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {"Effect": "Allow", "Action": ["s3:ListBucket"], "Resource": "arn:aws:s3:::climatesyncai-artifacts"},
+    {"Effect": "Allow", "Action": ["s3:GetObject"], "Resource": "arn:aws:s3:::climatesyncai-artifacts/sarimax_models/*"}
+  ]
+}
+```
+
+- Initialize and create the EB environment
+```
+pip install awsebcli
+aws configure  
+
+eb init -p docker ClimateSyncAI --region us-east-1
+eb create climatesyncai-env --single
+```
+
+```
+eb setenv MODEL_BUCKET=climatesyncai-artifacts MODEL_PREFIX=sarimax_models/
+# (Optional) set Flask for the prod env:
+eb setenv FLASK_ENV=production
+```
+
+- Deploy
+```
+eb deploy
+eb open
+eb logs --all
+``` 
+
 
 
 
